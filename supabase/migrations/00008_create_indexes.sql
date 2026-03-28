@@ -1,0 +1,15 @@
+CREATE INDEX idx_markets_status ON markets(status);
+CREATE INDEX idx_markets_category ON markets(category);
+CREATE INDEX idx_markets_created_at ON markets(created_at DESC);
+CREATE INDEX idx_markets_total_volume ON markets(total_volume DESC);
+CREATE INDEX idx_markets_resolution_date ON markets(resolution_date);
+CREATE INDEX idx_markets_is_synced ON markets(is_synced);
+CREATE INDEX idx_trades_user_id ON trades(user_id);
+CREATE INDEX idx_trades_market_id ON trades(market_id);
+CREATE INDEX idx_trades_created_at ON trades(created_at DESC);
+CREATE INDEX idx_positions_user_id ON positions(user_id);
+CREATE INDEX idx_positions_market_id ON positions(market_id);
+CREATE INDEX idx_market_history_market_id ON market_history(market_id, recorded_at DESC);
+CREATE INDEX idx_comments_market_id ON comments(market_id, created_at DESC);
+CREATE INDEX idx_likes_market_id ON likes(market_id);
+CREATE INDEX idx_profiles_balance ON profiles(balance DESC);
