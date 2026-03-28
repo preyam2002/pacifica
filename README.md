@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pacifica
 
-## Getting Started
+Play-money prediction market platform. Create markets, trade with LMSR pricing, sync with Polymarket & Kalshi, and track your edge against real-money odds.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **LMSR AMM trading** — atomic trade execution via Postgres functions with slippage protection
+- **Dual-probability system** — community predictions run alongside synced real-money odds
+- **Market sync** — auto-imports markets from Polymarket and Kalshi every 15 minutes
+- **Edge scoring** — tracks how often you outperform real-money markets
+- **Daily bonuses** — streak multipliers up to 3x ($50-$150/day)
+- **Social features** — comments, reactions, likes, follows, leaderboards, activity feed
+- **Real-time charts** — probability trends with Recharts
+- **Achievements** — badges for trading milestones
+- **Embeddable** — embed markets on external sites
+- **8 categories** — politics, sports, tech, crypto, entertainment, science, economics, custom
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16, React 19, TypeScript (strict) |
+| Database | Supabase (PostgreSQL + Auth + Realtime) |
+| Trading | LMSR AMM (atomic via Postgres RPC) |
+| Styling | Tailwind CSS v4, Framer Motion, shadcn/ui |
+| Charts | Recharts |
+| Sync | Polymarket & Kalshi APIs (Vercel cron) |
+| Testing | Vitest |
+
+## Quick Start
+
+1. Create a [Supabase](https://supabase.com) project
+2. Run all migrations in `supabase/migrations/` in order
+3. Create a `pacifica_bot` profile for synced markets
+4. Set environment variables:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   CRON_SECRET=<random-string>
+   ```
+5. `npm install && npm run dev`
+
+## Architecture
+
+**Trading engine:** All trades execute through `execute_trade()` — an atomic Postgres function that locks rows, computes LMSR costs, validates balance, updates positions, and records history. Client-side LMSR (`lib/amm.ts`) is only for price previews.
+
+**Market sync:** Vercel cron jobs fetch Polymarket/Kalshi markets every 15 minutes and auto-close expired markets hourly. Synced markets show both community and real-money probabilities.
+
+```
+app/
+├── markets/          # Browse, create, trade
+├── portfolio/        # Positions, trades, followed
+├── leaderboard/      # Rankings by portfolio value
+├── activity/         # Global feed
+├── profile/[user]    # Public profiles
+└── api/cron/         # Sync & expiration jobs
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+15 SQL migrations covering: profiles, markets, trades, positions, market history, comments, likes, reactions, follows, daily bonuses, trending scores, edge scoring, and RLS policies.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Key RPC functions: `execute_trade`, `resolve_market`, `calculate_market_edge`, `claim_daily_bonus`, `get_trending_markets`.
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT — Built by [Preyam](https://github.com/preyam2002)
